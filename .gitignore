@@ -1,0 +1,42 @@
+# Virtual Environment
+venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor specific files
+.vscode/
+.idea/
+
+# Secrets / Environment Variables
+.env
+*.env
+
+# Media files (user uploads - during development)
+# In production, these should be on S3 or similar and not in Git
+media/
+
+# Staticfiles (collected) - usually only needed on server
+staticfiles/
+
+# Database files (if using SQLite for quick dev testing - not recommended for prod)
+*.sqlite3
+db.sqlite3
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Log files
+*.log
+
+# Celery beat schedule file
+celerybeat-schedule
