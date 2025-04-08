@@ -10,22 +10,29 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os  # Added for environment variable access
 from pathlib import Path
+from dotenv import load_dotenv  # Added to load .env file
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from .env file in the project root
+# Make sure .env is in the BASE_DIR and correctly formatted
+load_dotenv(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_8s!js17kdaauk1nwuhkkw5%6!v#z!52xh6!@krdra6!d4(0$*'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-placeholder') # Use a default only as a last resort
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Consider setting DEBUG based on an environment variable for flexibility
+# DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
+DEBUG = True # Keep True for local development
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [] # Keep empty for local development, configure for production
 
 
 # Application definition
@@ -37,6 +44,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Local apps
+    'users.apps.UsersConfig',    # Your users app
+    'players.apps.PlayersConfig', # Your players app
 ]
 
 MIDDLEWARE = [
@@ -54,8 +65,9 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        # Consider adding BASE_DIR / 'templates' for project-wide templates
         'DIRS': [],
-        'APP_DIRS': True,
+        'APP_DIRS': True, # Looks for templates inside app 'templates' folders
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -72,11 +84,19 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),               # Fetched from .env
+        'USER': os.getenv('DB_USER'),               # Fetched from .env
+        'PASSWORD': os.getenv('DB_PASSWORD'),       # Fetched from .env
+        'HOST': os.getenv('DB_HOST', 'localhost'),  # Fetched from .env, default localhost
+        'PORT': os.getenv('DB_PORT', '5432'),       # Fetched from .env, default 5432
+        # --- ADDED OPTIONS TO DISABLE GSSAPI ---
+        'OPTIONS': {
+            'gssencmode': 'disable', # Force fallback to password authentication
+        },
+        # --- END ADDITION ---
     }
 }
 
@@ -105,19 +125,31 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'UTC' # Change to your timezone if needed, e.g., 'America/New_York'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = True # Recommended for handling timezones correctly
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+# Example for project-wide static files:
+# STATICFILES_DIRS = [BASE_DIR / 'static']
+# STATIC_ROOT = BASE_DIR / 'staticfiles' # For collectstatic in production
+
+# Media files (User Uploads like videos, profile pictures)
+MEDIA_URL = '/media/' # URL prefix for media files served by Django (dev only)
+MEDIA_ROOT = BASE_DIR / 'media' # Folder where uploads will be saved
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Authentication URLs (optional, but often useful)
+# LOGIN_REDIRECT_URL = '/' # Where to go after successful login
+# LOGOUT_REDIRECT_URL = '/' # Where to go after successful logout
+# LOGIN_URL = 'login' # Name of the login URL pattern (if using accounts/ include)

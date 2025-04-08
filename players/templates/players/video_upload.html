@@ -1,0 +1,23 @@
+{% extends 'players/base.html' %} {# Inherit base structure and styling #}
+
+{% block title %}Upload Video{% endblock %} {# Set page title #}
+
+{% block content %}
+    <h2>Upload New Video</h2>
+
+    {# Messages handled by base.html #}
+
+    {# Use enctype for file uploads #}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %} {# Security token #}
+
+        <p>Select a video file and provide a title.</p>
+
+        {{ form.as_p }} {# Render form fields (title, description, video_file) #}
+
+        <button type="submit">Upload Video</button>
+        {# Add a link to cancel and go back to the profile detail page #}
+        <a href="{% url 'players:profile_detail' %}" style="margin-left: 10px; color: #6c757d;">Cancel</a>
+    </form>
+
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'players/base.html' %} {# Inherit from base.html #}
+
+{% block title %}Home - I Still Got It{% endblock %} {# Set the page title #}
+
+{% block content %} {# Fill the content block defined in base.html #}
+    <h1>Welcome to I Still Got It!</h1>
+
+    {% if user.is_authenticated %}
+        <p style="text-align: center;">This is your dashboard (more features coming soon).</p>
+        {# Specific profile details would go here #}
+
+    {% else %}
+        <p style="text-align: center;">The place to showcase your skills.</p>
+        {# Login/Signup links are now handled in base.html header #}
+    {% endif %}
+{% endblock %}

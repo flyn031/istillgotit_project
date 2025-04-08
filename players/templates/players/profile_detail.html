@@ -1,0 +1,115 @@
+{% extends 'players/base.html' %}
+
+{% block title %}{{ profile.user.username }}'s Profile{% endblock %}
+
+{% block content %}
+    <h2>{{ profile.user.username }}'s Profile</h2>
+
+    {# Avatar Display #}
+    <div style="margin-bottom: 1.5rem;">
+        {% if profile.avatar %}
+            <img src="{{ profile.avatar.url }}" alt="{{ profile.user.username }}'s Avatar" style="max-width: 150px; max-height: 150px; border-radius: 50%; border: 2px solid #ccc;">
+        {% else %}
+            <p><em>No avatar uploaded.</em></p>
+        {% endif %}
+    </div>
+
+    {# User Details #}
+    <p><strong>Username:</strong> {{ profile.user.username }}</p>
+    <p><strong>Email:</strong> {{ profile.user.email }}</p> {# This is the user's login email #}
+    <p><strong>Joined:</strong> {{ profile.user.date_joined|date:"F j, Y" }}</p>
+
+    {# --- ADD Conditional Contact Email Display --- #}
+    {# Check if player provided email AND if viewer is a scout #}
+    {% if profile.contact_email and is_viewer_scout %}
+        <p style="background-color: #e7f3fe; border-left: 4px solid #007bff; padding: 8px 12px; margin-top: 1rem;">
+            <strong style="color: #0056b3;">Scout Contact Email:</strong> {{ profile.contact_email }}
+        </p>
+    {% endif %}
+    {# --- END Contact Email Display --- #}
+
+
+    {# Profile Details #}
+    <hr>
+    <h3>Profile Details</h3>
+    <p>
+        <strong>Bio:</strong><br>
+        {% if profile.bio %}
+            {{ profile.bio|linebreaksbr }}
+        {% else %}
+            <em>No bio provided yet.</em>
+        {% endif %}
+    </p>
+    {% if profile.date_of_birth %}
+        <p><strong>Date of Birth:</strong> {{ profile.date_of_birth|date:"F j, Y" }}</p>
+    {% endif %}
+
+    {# Edit Profile Link #}
+    <p style="margin-top: 1rem;">
+        <a href="{% url 'players:profile_edit' %}" class="button-edit">Edit Profile</a>
+    </p>
+
+    {# Videos Section #}
+    <div style="margin-top: 2rem;">
+         <hr>
+         <h3>My Videos</h3>
+         <p>
+             <a href="{% url 'players:video_upload' %}" class="button">Upload New Video</a>
+         </p>
+
+         {% if user_videos %}
+            <div class="video-list" style="margin-top: 1.5rem;">
+                {% for video in user_videos %}
+                    <div class="video-item" style="border: 1px solid #eee; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px; background-color: #fdfdfd;">
+                        <h4>{{ video.title }}</h4>
+                        {# Video player, description, etc... #}
+                        {% if video.video_file %}
+                            <video width="100%" max-width="640" controls style="margin-bottom: 0.5rem; background-color: #000;">
+                                <source src="{{ video.video_file.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        {% endif %}
+                        {% if video.description %}<p style="font-size: 0.9em; color: #555;">{{ video.description|linebreaksbr }}</p>{% endif %}
+                        <p style="font-size: 0.8em; color: #777;">Uploaded: {{ video.uploaded_at|date:"F j, Y, P" }}</p>
+
+                        {# Comments Section (Conditional) #}
+                        {% if video.allow_comments %}
+                            <div class="comments-section" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed #ddd;">
+                                {# ... comments display and form ... #}
+                                <h5>Comments</h5>
+                                {% with comments=video.comments.all %}
+                                    {% if comments %}
+                                        <ul style="list-style-type: none; padding-left: 0;">
+                                            {% for comment in comments %}
+                                                <li style="border-bottom: 1px solid #eee; padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                                                    <strong>{{ comment.author.username }}</strong>
+                                                    <span style="font-size: 0.8em; color: #777;">({{ comment.created_at|timesince }} ago):</span><br>
+                                                    {{ comment.body|linebreaksbr }}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <p style="font-size: 0.9em; color: #777;"><em>No comments yet. Be the first!</em></p>
+                                    {% endif %}
+                                {% endwith %}
+                                {% if user.is_authenticated %}
+                                    <form action="{% url 'players:profile_detail' %}" method="post" style="margin-top: 1rem;">
+                                        {% csrf_token %}<input type="hidden" name="video_id" value="{{ video.id }}">{{ comment_form.body }}
+                                        <button type="submit" name="submit_comment" style="padding: 5px 10px; font-size: 0.9em; margin-top: 0.5rem;">Add Comment</button>
+                                    </form>
+                                {% else %}<p><a href="{% url 'login' %}?next={{ request.path }}">Log in</a> to add a comment.</p>{% endif %}
+                            </div>
+                        {% else %}
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed #ddd;">
+                                <p style="font-style: italic; color: #666;">Comments are disabled for this video.</p>
+                            </div>
+                        {% endif %}
+                    </div> {# End video-item #}
+                {% endfor %}
+            </div> {# End video-list #}
+         {% else %}
+            <p><em>No videos uploaded yet.</em></p>
+         {% endif %}
+    </div> {# --- END Video Section --- #}
+
+{% endblock %}

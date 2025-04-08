@@ -1,0 +1,32 @@
+{% extends 'players/base.html' %} {# Inherit common structure #}
+
+{% block title %}Edit Profile{% endblock %} {# Set page title #}
+
+{% block content %}
+    <h2>Edit Profile for {{ user.username }}</h2>
+
+    {# Display messages from the messages framework (from views.py) #}
+    {% if messages %}
+        <ul class="messages" style="list-style-type: none; padding: 0; margin-bottom: 1rem;">
+            {% for message in messages %}
+                {# Add classes for styling based on message level (e.g., success, error) #}
+                <li{% if message.tags %} class="{{ message.tags }}" style="padding: 10px; border-radius: 4px; color: white; background-color: {% if message.level == 40 %}#dc3545{% elif message.level == 25 %}#28a745{% else %}#007bff{% endif %};"{% endif %}>
+                    {{ message }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+
+    {# Use enctype for potential file uploads (like an avatar) #}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %} {# Security token #}
+
+        {{ form.as_p }} {# Render form fields as paragraphs #}
+
+        <button type="submit">Save Changes</button>
+        {# Add a link to cancel and go back to the profile detail page #}
+        <a href="{% url 'players:profile_detail' %}" style="margin-left: 10px; color: #6c757d;">Cancel</a>
+    </form>
+
+{% endblock %}
