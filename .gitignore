@@ -1,42 +1,22 @@
-# Virtual Environment
-venv/
-
-# Python cache files
+# Django specific ignores
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[co]
+*/migrations/*.py # Ignore new, unapplied migrations (optional, but keeps repository cleaner)
+*.sqlite3 # If you're using the default SQLite database file
 
-# OS generated files
-.DS_Store
-Thumbs.db
+# Environment
+.env # Ignore files with environment variables
+venv/ # Ignore the virtual environment directory
+ENV/
+env/
 
-# IDE / Editor specific files
-.vscode/
-.idea/
+# IDEs
+.vscode/ # VS Code settings (optional)
+.idea/ # PyCharm settings (optional)
 
-# Secrets / Environment Variables
-.env
-*.env
+# Generated files
+staticfiles/ # Collected static files for deployment
+media/ # User-uploaded media files
 
-# Media files (user uploads - during development)
-# In production, these should be on S3 or similar and not in Git
-media/
-
-# Staticfiles (collected) - usually only needed on server
-staticfiles/
-
-# Database files (if using SQLite for quick dev testing - not recommended for prod)
-*.sqlite3
-db.sqlite3
-
-# Build artifacts
-dist/
-build/
-*.egg-info/
-
-# Log files
-*.log
-
-# Celery beat schedule file
-celerybeat-schedule
+# Sensitive files (if not using .env)
+# config/settings.py # ONLY uncomment if you move SECRET_KEY etc. to env vars
