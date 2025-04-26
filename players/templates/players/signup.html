@@ -1,16 +1,20 @@
-{% extends 'players/base.html' %} {# Inherit from base.html #}
+{# players/templates/players/signup.html #}
+{% extends "auth_base.html" %} {# <-- Extends the new auth base #}
+{% load crispy_forms_tags %}
 
-{% block title %}Sign Up - I Still Got It{% endblock %} {# Set the page title #}
+{% block title %}Sign Up{% endblock %}
 
-{% block content %} {# Fill the content block defined in base.html #}
-    <h2>Sign Up</h2>
-
-    <form method="post">
-        {% csrf_token %} {# Important for security #}
-        {{ form.as_p }} {# Renders the form fields as paragraphs #}
-        <button type="submit">Sign Up</button>
+{% block content %}
+    <h3 class="card-title text-center mb-4 fw-light">Create Account</h3>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form|crispy }} {# Renders the CustomUserCreationForm fields #}
+         <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">Sign Up</button>
+        </div>
     </form>
-
-    {# Login link is now handled in base.html header #}
-    {# <p><a href="{% url 'login' %}">Already have an account? Log in</a></p> #}
+    <hr class="my-4">
+    <div class="text-center">
+        <p class="mb-0">Already have an account? <a href="{% url 'login' %}" class="text-decoration-none">Log In</a></p>
+    </div>
 {% endblock %}

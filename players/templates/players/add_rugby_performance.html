@@ -1,0 +1,18 @@
+{# players/templates/players/add_rugby_performance.html #}
+
+{% extends "base.html" %} {# Or your base template #}
+{% load crispy_forms_tags %} {# If using crispy forms #}
+
+{% block content %}
+  <h2>Add Rugby Performance Stats</h2>
+  <p>Match Date: {{ match.match_date }}</p>
+  {% if match.opponent %}<p>Opponent: {{ match.opponent }}</p>{% endif %}
+
+  <form method="post" novalidate>
+      {% csrf_token %}
+
+      {{ form|crispy }} {# Render the form using crispy, or use {{ form.as_p }} #}
+
+      <button type="submit" class="btn btn-primary">Save Rugby Stats</button>
+  </form>
+{% endblock content %}

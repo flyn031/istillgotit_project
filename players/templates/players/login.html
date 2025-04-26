@@ -1,0 +1,35 @@
+{# templates/registration/login.html #}
+{% extends "auth_base.html" %} {# <-- Extends the new auth base #}
+{% load crispy_forms_tags %}
+
+{% block title %}Log In{% endblock %}
+
+{% block content %}
+    <h3 class="card-title text-center mb-4 fw-light">Log In</h3>
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        {# Display non-field errors if using AuthenticationForm #}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger mb-3">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {{ form|crispy }} {# Renders username, password with labels/help text #}
+
+        <div class="d-grid mt-4">
+             <button type="submit" class="btn btn-primary btn-lg">Log In</button>
+        </div>
+    </form>
+    <hr class="my-4">
+    <div class="text-center">
+        {# Add password reset link if configured #}
+        {% comment %}
+        <p class="mb-1"><a href="{% url 'password_reset' %}" class="text-decoration-none">Forgot password?</a></p>
+        {% endcomment %}
+        <p class="mb-0">Don't have an account? <a href="{% url 'players:signup' %}" class="text-decoration-none">Sign Up</a></p>
+    </div>
+{% endblock %}

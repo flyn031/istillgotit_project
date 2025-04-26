@@ -115,3 +115,79 @@ textarea {
  .user-info button:hover {
      background-color: #5a6268;
  }
+
+
+/* --- NEW CODE: Styles for Video and Player Levels --- */
+
+/* Base styles for level badges/spans */
+.video-level, .player-level {
+    display: inline-block; /* Or inline-flex for better alignment of icon/text */
+    padding: 0.2em 0.5em;
+    font-size: 0.8em; /* Smaller font size */
+    font-weight: bold;
+    border-radius: 0.3em;
+    /* Removed margin-left here, using Bootstrap's ms-1/ms-2 in HTML templates */
+    vertical-align: middle;
+    /* color: white; Default text color - will be overridden by level specific colors */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3); /* Optional text shadow */
+}
+
+/* Style for the icon/emoji pseudo-element */
+.video-level::before, .player-level::before {
+    margin-right: 0.3em; /* Space between emoji and text */
+    font-size: 1em; /* Ensure emoji is same size as text */
+    vertical-align: middle; /* Align emoji vertically */
+    line-height: 1; /* Reset line height for emoji */
+}
+
+
+/* --- Video Level Styles (Background Color & Text Color) --- */
+.level-standard { background-color: #777; color: #f8f9fa; } /* Gray background, Light text */
+.level-rising { background-color: #007bff; color: white; } /* Blue background, White text */
+.level-popular { background-color: #28a745; color: white; } /* Green background, White text */
+.level-trending { background-color: #ffc107; color: #333; text-shadow: none;} /* Yellow background, Dark text */
+.level-viral-hit { background-color: #dc3545; color: white; } /* Red background, White text */
+
+/* --- Video Level Icons --- */
+.level-standard::before { content: "\25B6\FE0F"; } /* ▶️ Play Button with variation selector */
+.level-rising::before { content: "\1F680"; } /* 🚀 Rocket */
+.level-popular::before { content: "\1F44D"; } /* 👍 Thumbs Up */
+.level-trending::before { content: "\1F4C8"; } /* 📈 Chart Increasing */
+.level-viral-hit::before { content: "\1F451"; } /* 👑 Crown */
+
+
+/* --- Player Level Styles (Background Color & Text Color) --- */
+.level-newbie { background-color: #6c757d; color: #f8f9fa; } /* Darker Gray background, Light text */
+.level-bronze { background-color: #cd7f32; color: white; } /* Bronze background, White text */
+.level-silver { background-color: silver; color: #333; text-shadow: none;} /* Silver background, Dark text */
+.level-gold { background-color: gold; color: #333; text-shadow: none;} /* Gold background, Dark text */
+.level-platinum { background-color: #e5e4e2; color: #333; text-shadow: none;} /* Platinum background, Dark text */
+.level-elite { background-color: purple; color: white; } /* Purple background, White text */
+
+/* --- Player Level Icons --- */
+.level-newbie::before { content: "\1F331"; } /* 🌱 Seedling */
+.level-bronze::before { content: "\1F949"; } /* 🥉 Bronze Medal */
+.level-silver::before { content: "\1F948"; } /* 🥈 Silver Medal */
+.level-gold::before { content: "\1F947"; } /* 🥇 Gold Medal */
+.level-platinum::before { content: "\1F48E"; } /* 💎 Gem Stone */
+.level-elite::before { content: "\1F3C6"; } /* 🏆 Trophy */
+
+
+/* Style for the image within the ratio div */
+.ratio img.card-img-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensure image covers the area */
+}
+
+/* Custom class to prevent pointer cursor when link is disabled */
+.no-link {
+    cursor: default;
+    pointer-events: none; /* Prevents click */
+    opacity: 0.7; /* Visually indicate it's not interactive */
+}
+
+/* --- END NEW CODE --- */

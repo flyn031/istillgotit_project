@@ -1,0 +1,161 @@
+{# templates/base.html #}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}I Still Got It{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'players/style.css' %}"> {# Assuming you have a base CSS #}
+
+    <style>
+        /* Default body padding for fixed navbar */
+        body { padding-top: 56px; } /* Adjust if navbar height changes */
+        /* Default footer styling */
+        footer { text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; font-size: 0.9em; color: #666; }
+
+        /* --- Homepage Specific Navbar Styles (Original Hero Page) --- */
+        body#page-home nav.navbar.fixed-top { /* Applies when body ID is 'page-home' */
+            background-color: transparent !important;
+            transition: background-color 0.3s ease-in-out;
+        }
+        body#page-home nav.navbar.fixed-top .navbar-brand,
+        body#page-home nav.navbar.fixed-top .nav-link {
+            color: #f8f9fa !important;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        body#page-home nav.navbar.fixed-top .btn-outline-light {
+             border-color: #f8f9fa !important;
+             color: #f8f9fa !important;
+        }
+         body#page-home nav.navbar.fixed-top .btn-outline-light:hover {
+             background-color: rgba(248, 249, 250, 0.2) !important;
+             color: #f8f9fa !important;
+         }
+        body#page-home nav.navbar.fixed-top .navbar-toggler-icon {
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28248, 249, 250, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3csvg%3e");
+        }
+        /* --- End Homepage Specific Navbar Styles --- */
+
+         /* --- Dashboard Specific Styles --- */
+         body#page-home-dashboard nav.navbar.fixed-top { /* Applies when body ID is 'page-home-dashboard' */
+             /* You can set a different background color or style here if needed */
+             background-color: #343a40 !important; /* Example: standard dark navbar */
+         }
+         body#page-home-dashboard {
+              padding-top: 56px; /* Ensure padding for the fixed navbar */
+         }
+         /* --- End Dashboard Specific Styles --- */
+
+
+        /* Style for the image within the ratio div */
+        .ratio img.card-img-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+    {% block extra_css %}{% endblock extra_css %}
+</head>
+{# --- CRITICAL: Body tag with ID block --- #}
+<body id="{% block body_id %}page-default{% endblock body_id %}" {% block body_attributes %}{% endblock body_attributes %}>
+
+    {# --- Navbar --- #}
+    {# Default is bg-dark, navbar-dark. CSS overrides background on specific pages #}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <div class="container-fluid">
+        {# --- MODIFIED BRAND LINK --- #}
+        {# This link always goes to the home/dashboard page #}
+        <a class="navbar-brand" href="{% url 'home' %}">
+             {% if user.is_authenticated %}
+                 Dashboard {# Show "Dashboard" when logged in #}
+             {% else %}
+                 I Still Got It {# Show site name when logged out #}
+             {% endif %}
+         </a>
+        {# --- END MODIFIED BRAND LINK --- #}
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          {# Left-aligned items if any needed later #}
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              {# Added Browse link to Navbar #}
+              <li class="nav-item">
+                  <a class="nav-link" href="{% url 'players:browse_profiles' %}">Browse Players</a>
+              </li>
+              {# Add other main navigation links here #}
+          </ul>
+
+          {# Right-aligned items #}
+          {# MODIFIED: Reordered and clarified authenticated user links #}
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+             {% if user.is_authenticated %}
+                {# --- My Profile Link (RESTORED AND POSITIONED) --- #}
+                {# Link to the URL name that shows the logged-in user's profile #}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'players:profile_detail' %}">My Profile</a>
+                </li>
+                {# --- End My Profile Link --- #}
+
+                {# --- Conditional Subscription Link (Kept as example) --- #}
+                {# This requires the subscription object to be passed to the base context - tricky #}
+                {# A simpler way might be to have this link always show, and the page it links to handles redirects #}
+                {% comment %}
+                {% if user.is_authenticated and not user.subscription.is_premium %}
+                    <li class="nav-item">
+                         {# TODO: Replace # with your actual subscription URL #}
+                         <a class="nav-link text-warning fw-bold" href="#">Go Premium</a>
+                    </li>
+                {% endif %}
+                {% endcomment %}
+
+                {% if user.is_superuser %}<li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}">Admin</a></li>{% endif %}
+                <li class="nav-item">
+                    {# Form for logout button to use POST #}
+                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        {# Style button to look like nav-link #}
+                        <button type="submit" class="btn btn-link nav-link" style="padding-top: var(--bs-nav-link-padding-y); padding-bottom: var(--bs-nav-link-padding-y);">Log Out</button>
+                    </form>
+                </li>
+            {% else %}
+                 {# Logged out users #}
+                 <li class="nav-item"><a class="nav-link" href="{% url 'players:signup' %}">Sign Up</a></li>
+                 {# Log In Button - special styling on homepage via CSS #}
+                 <li class="nav-item"><a class="nav-link btn btn-outline-light btn-sm ms-lg-2" href="{% url 'login' %}" style="padding: 0.25rem 0.75rem;">Log In</a></li> {# Added ms-lg-2 for spacing #}
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="flex-shrink-0"> {# Add flex-shrink-0 if footer should stick to bottom #}
+        {# Display Django messages #}
+        {% if messages %}
+            <div class="container mt-3"> {# Add container and margin #}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    {# Footer pushed down by flex-shrink-0 on main if body has display: flex; flex-direction: column; min-height: 100vh; #}
+    <footer class="mt-auto py-3 bg-light">
+      <div class="container text-center"><span class="text-muted">© {% now "Y" %} I Still Got It</span></div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    {% block extra_js %}{% endblock extra_js %}
+</body>
+</html>

@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %} {# Needed for urlencode filter #}
+{# REMOVED: {% load custom_filters %} #}
+
+{% block title %}Browse Talent{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <h1 class="mb-3">Browse Player Profiles</h1>
+
+    {# --- Sport Filter Controls --- #}
+    <div class="mb-4">
+        <span class="me-2">Filter by Sport:</span>
+        <div class="btn-group flex-wrap" role="group" aria-label="Sport Filters"> {# Added flex-wrap for responsiveness #}
+            {# "All" Button #}
+            <a href="{% url 'players:browse_profiles' %}" class="btn {% if not selected_sport %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm mb-1 me-1"> {# Added margins #}
+                All
+            </a>
+            {# Buttons for each sport choice #}
+            {% for key, display_name in sport_choices %}
+                <a href="?sport={{ key|urlencode }}" class="btn {% if selected_sport == key %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm mb-1 me-1"> {# Added margins, urlencode key #}
+                    {{ display_name }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+    {# --- End Sport Filter Controls --- #}
+
+
+    {% if page_obj %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-4">
+            {# --- Profile Card Loop --- #}
+            {% for profile in page_obj %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm text-center">
+                        {# Link enabled/disabled based on freemium logic (assuming same as home page) #}
+                        {% if user.is_authenticated %}
+                             {# If user is authenticated, check subscription #}
+                             {# NOTE: can_view_more_profiles needs to be passed from browse_profiles_view for this template #}
+                             {% with subscription=user.subscription %}
+                                 {% if subscription.is_premium or can_view_more_profiles %} {# Need to pass can_view_more_profiles from view #}
+                                      <a href="{% url 'players:profile_detail_pk' pk=profile.pk %}" class="text-decoration-none text-dark" aria-label="View {{ profile.user.username }}'s profile">
+                                 {% else %}
+                                      <div class="no-link"> {# Custom class for styling, prevent pointer #}
+                                 {% endif %}
+                             {% endwith %}
+                         {% else %}
+                              {# Anonymous users likely can't view details or have limited views, adjust as per your logic #}
+                              {# For simplicity, let's assume anonymous users *can* click to see a login wall #}
+                              <a href="{% url 'players:profile_detail_pk' pk=profile.pk %}" class="text-decoration-none text-dark" aria-label="View {{ profile.user.username }}'s profile">
+                         {% endif %}
+
+                             {% if profile.avatar %}
+                                 <img src="{{ profile.avatar.url }}" class="card-img-top" alt="{{ profile.user.username }} Avatar" style="height: 200px; object-fit: cover;">
+                             {% else %}
+                                  <svg class="card-img-top bg-secondary" width="100%" height="200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Avatar" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#6c757d"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em" text-anchor="middle">No Avatar</text></svg>
+                             {% endif %}
+
+                         {% if user.is_authenticated %}
+                              {% with subscription=user.subscription %}
+                                 {% if subscription.is_premium or can_view_more_profiles %} </a> {% else %} </div> {% endif %}
+                              {% endwith %}
+                         {% else %}
+                             </a>
+                         {% endif %}
+
+
+                        <div class="card-body d-flex flex-column position-relative">
+                            <h5 class="card-title mb-1">
+                                {# Link title only if clickable #}
+                                {% if user.is_authenticated %}
+                                     {% with subscription=user.subscription %}
+                                         {% if subscription.is_premium or can_view_more_profiles %} {# Need can_view_more_profiles here too #}
+                                             <a href="{% url 'players:profile_detail_pk' pk=profile.pk %}" class="text-decoration-none text-dark stretched-link">
+                                                 {{ profile.user.username }}
+                                             </a>
+                                          {% else %}
+                                             {{ profile.user.username }}
+                                          {% endif %}
+                                     {% endwith %}
+                                {% else %}
+                                     <a href="{% url 'players:profile_detail_pk' pk=profile.pk %}" class="text-decoration-none text-dark stretched-link">
+                                        {{ profile.user.username }}
+                                    </a>
+                                {% endif %}
+
+                                {# --- MODIFIED CODE: Display Player Level on Card (Parentheses Removed) --- #}
+                                <span class="player-level level-{{ profile.player_level|lower|slugify }} ms-1"> {# Added ms-1 margin #}
+                                    {{ profile.player_level }}
+                                </span>
+                                {# --- END MODIFIED CODE --- #}
+                            </h5>
+                            <p class="card-text text-muted small mb-2">@{{ profile.user.username }}</p>
+                            <p class="card-text small mt-auto mb-0">
+                                {{ profile.get_primary_sport_display|default:"Sport not set" }}
+                            </p>
+                             {# Optional: Show aggregated stats on card #}
+                             {% comment %}
+                             <p class="card-text small">Views: {{ profile.total_videos_views }} | Rating: {{ profile.overall_average_rating }}</p>
+                             {% endcomment %}
+
+                            {# Optional explicit View Profile button (redundant with stretched-link on title unless you want it) #}
+                             {% comment %}
+                            {% if user.is_authenticated %}
+                                 {% with subscription=user.subscription %}
+                                     {% if subscription.is_premium or can_view_more_profiles %}
+                                        <a href="{% url 'players:profile_detail_pk' pk=profile.pk %}" class="btn btn-primary btn-sm mt-2">View Profile</a>
+                                     {% else %}
+                                        <button class="btn btn-secondary btn-sm mt-2" disabled>View Profile (Limit Reached)</button>
+                                     {% endif %}
+                                 {% endwith %}
+                            {% else %}
+                                 <a href="{% url 'players:profile_detail_pk' pk=profile.pk %}" class="btn btn-primary btn-sm mt-2">View Profile</a> {# Links to profile, maybe requires login #}
+                            {% endif %}
+                            {% endcomment %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+             {# --- End Profile Card Loop --- #}
+        </div>
+
+        {# --- Pagination (UPDATED to include sport filter correctly) --- #}
+        {% if page_obj.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center flex-wrap"> {# Added flex-wrap #}
+                    {# Build base query string for pagination links #}
+                    {% with base_query="?page=" %}
+                        {% if selected_sport %}
+                            {% with sport_param=selected_sport|urlencode %}
+                                {% with base_query="?sport="|add:sport_param|add:"&page=" %}
+                                    {# Pagination links WITH sport parameter #}
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item"><a class="page-link" href="{{ base_query }}1" aria-label="First">«</a></li>
+                                        <li class="page-item"><a class="page-link" href="{{ base_query }}{{ page_obj.previous_page_number }}" aria-label="Previous">‹</a></li>
+                                    {% else %}
+                                        <li class="page-item disabled"><span class="page-link" aria-hidden="true">«</span></li>
+                                        <li class="page-item disabled"><span class="page-link" aria-hidden="true">‹</span></li>
+                                    {% endif %}
+                                    {% for num in page_obj.paginator.page_range %}
+                                        {% if page_obj.number == num %} <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <li class="page-item"><a class="page-link" href="{{ base_query }}{{ num }}">{{ num }}</a></li>
+                                        {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %} <li class="page-item disabled"><span class="page-link">…</span></li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item"><a class="page-link" href="{{ base_query }}{{ page_obj.next_page_number }}" aria-label="Next">›</a></li>
+                                        <li class="page-item"><a class="page-link" href="{{ base_query }}{{ page_obj.paginator.num_pages }}" aria-label="Last">»</a></li>
+                                    {% else %}
+                                        <li class="page-item disabled"><span class="page-link" aria-hidden="true">›</span></li>
+                                        <li class="page-item disabled"><span class="page-link" aria-hidden="true">»</span></li>
+                                    {% endif %}
+                                {% endwith %} {# End base_query with sport #}
+                             {% endwith %} {# End sport_param #}
+                        {% else %}
+                             {# Pagination links WITHOUT sport parameter #}
+                             {% if page_obj.has_previous %} <li class="page-item"><a class="page-link" href="{{ base_query }}1" aria-label="First">«</a></li> <li class="page-item"><a class="page-link" href="{{ base_query }}{{ page_obj.previous_page_number }}" aria-label="Previous">‹</a></li>
+                             {% else %} <li class="page-item disabled"><span class="page-link" aria-hidden="true">«</span></li> <li class="page-item disabled"><span class="page-link" aria-hidden="true">‹</span></li> {% endif %}
+                             {% for num in page_obj.paginator.page_range %}
+                                 {% if page_obj.number == num %} <li class="page-item active" aria-current="page"><span class="page-link">{{ num }}</span></li>
+                                 {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <li class="page-item"><a class="page-link" href="{{ base_query }}{{ num }}">{{ num }}</a></li>
+                                 {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %} <li class="page-item disabled"><span class="page-link">…</span></li>
+                                 {% endif %}
+                             {% endfor %}
+                             {% if page_obj.has_next %} <li class="page-item"><a class="page-link" href="{{ base_query }}{{ page_obj.next_page_number }}" aria-label="Next">›</a></li> <li class="page-item"><a class="page-link" href="{{ base_query }}{{ page_obj.paginator.num_pages }}" aria-label="Last">»</a></li>
+                             {% else %} <li class="page-item disabled"><span class="page-link" aria-hidden="true">›</span></li> <li class="page-item disabled"><span class="page-link" aria-hidden="true">»</span></li> {% endif %}
+                        {% endif %} {# End if selected_sport #}
+                    {% endwith %} {# End base_query definition #}
+                </ul>
+            </nav>
+        {% endif %}
+        {# --- End Pagination --- #}
+
+    {% else %}
+        <div class="alert alert-light" role="alert">
+          No player profiles found{% if selected_sport %} for {{ selected_sport }}{% endif %}.
+        </div>
+    {% endif %}
+</div> {# End container #}
+
+{# --- Need to pass can_view_more_profiles from browse_profiles_view --- #}
+{% comment %}
+    To make the freemium logic for viewing profiles work in this template,
+    you need to ensure that the 'can_view_more_profiles' variable is
+    calculated and passed to the context in the browse_profiles_view.
+    The logic would be similar to the profile_detail_view:
+
+    # In players/views.py, inside browse_profiles_view:
+    is_premium_viewer = False
+    can_view_more_profiles = True # Assume true for anonymous/premium initially
+    profiles_viewed_this_month = 0
+    view_limit = FREE_PROFILE_VIEW_LIMIT_PER_MONTH # Define this constant
+
+    if request.user.is_authenticated:
+        subscription, created = Subscription.objects.get_or_create(user=request.user, defaults={'user_type': 'free'})
+        is_premium_viewer = subscription.is_premium()
+
+        if not is_premium_viewer:
+             one_month_ago = timezone.now() - timedelta(days=30)
+             profiles_viewed_this_month = ProfileView.objects.filter(
+                 user=request.user,
+                 viewed_at__gte=one_month_ago
+             ).count()
+             can_view_more_profiles = profiles_viewed_this_month < view_limit
+
+    # Add these to the context:
+    context = {
+        # ... existing context variables ...
+        'is_premium_viewer': is_premium_viewer,
+        'can_view_more_profiles': can_view_more_profiles,
+        'profiles_viewed_this_month': profiles_viewed_this_month, # Optional to show count
+        'view_limit': view_limit, # Optional to show limit
+    }
+
+    # The code in the template will then work.
+{% endcomment %}
+
+{% endblock content %} {# Correctly matched endblock for block content #}
+
+{% block extra_css %} {# Start of extra_css block #}
+<style>
+    /* Style for the image within the ratio div */
+    .ratio img.card-img-top {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        object-fit: cover;
+    }
+    /* Custom class to prevent pointer cursor when link is disabled */
+    .no-link {
+        cursor: default;
+        pointer-events: none; /* Prevents click */
+        opacity: 0.7; /* Visually indicate it's not interactive */
+    }
+</style>
+{% endblock extra_css %} {# End of extra_css block #}

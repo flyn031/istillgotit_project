@@ -1,32 +1,46 @@
-{% extends 'players/base.html' %} {# Inherit common structure #}
+{% extends "base.html" %} {# Inherit common structure #}
+{% load crispy_forms_tags %} {# Load crispy tags for form rendering #}
 
 {% block title %}Edit Profile{% endblock %} {# Set page title #}
 
 {% block content %}
-    <h2>Edit Profile for {{ user.username }}</h2>
+<div class="container mt-4">
+    <div class="row justify-content-center"> {# Center the column #}
+        <div class="col-md-10 col-lg-8"> {# Constrain the width #}
 
-    {# Display messages from the messages framework (from views.py) #}
-    {% if messages %}
-        <ul class="messages" style="list-style-type: none; padding: 0; margin-bottom: 1rem;">
-            {% for message in messages %}
-                {# Add classes for styling based on message level (e.g., success, error) #}
-                <li{% if message.tags %} class="{{ message.tags }}" style="padding: 10px; border-radius: 4px; color: white; background-color: {% if message.level == 40 %}#dc3545{% elif message.level == 25 %}#28a745{% else %}#007bff{% endif %};"{% endif %}>
-                    {{ message }}
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h2 class="h4 mb-0">Edit Profile for {{ user.username }}</h2>
+                </div>
+                <div class="card-body">
 
+                    {# Display messages using Bootstrap alerts #}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% elif message.tags == 'success' %}success{% else %}{{ message.tags }}{% endif %}{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    {# End message display #}
 
-    {# Use enctype for potential file uploads (like an avatar) #}
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %} {# Security token #}
+                    {# Use enctype for file uploads (avatar) #}
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %} {# Security token #}
 
-        {{ form.as_p }} {# Render form fields as paragraphs #}
+                        {{ form|crispy }} {# Render form fields using Crispy + Bootstrap 5 #}
 
-        <button type="submit">Save Changes</button>
-        {# Add a link to cancel and go back to the profile detail page #}
-        <a href="{% url 'players:profile_detail' %}" style="margin-left: 10px; color: #6c757d;">Cancel</a>
-    </form>
+                        <div class="mt-4 d-grid gap-2 d-sm-flex justify-content-sm-start"> {# Button alignment #}
+                            <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                            {# Add a styled link to cancel #}
+                            <a href="{% url 'players:profile_detail' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                        </div>
+                    </form>
+                </div> {# End card-body #}
+            </div> {# End card #}
 
+        </div> {# End col #}
+    </div> {# End row #}
+</div> {# End container #}
 {% endblock %}

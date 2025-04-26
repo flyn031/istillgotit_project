@@ -1,0 +1,24 @@
+{# players/templates/players/add_stat.html #}
+{% extends 'players/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Add Statistic - {{ profile.user.username }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 col-lg-6 mx-auto">
+        <div class="card shadow-sm p-4">
+            <h2 class="card-title text-center mb-4">Add New Statistic</h2>
+
+            <form method="post" novalidate> {# novalidate disables browser validation, relying on Django #}
+                {% csrf_token %}
+                {% crispy form %} {# Use crispy to render the PlayerStatForm #}
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-success">Save Statistic</button>
+                    <a href="{% url 'players:profile_detail' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

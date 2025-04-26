@@ -1,0 +1,26 @@
+{# players/templates/players/add_cricket_performance.html #}
+
+{% extends "base.html" %} {# <-- Make sure this matches your actual base template file #}
+{% load crispy_forms_tags %} {# <-- If you are using crispy forms #}
+
+{% block content %}
+  <h2>Add Cricket Performance Stats</h2>
+
+  {# Display some context about the match - requires 'match' object in view context #}
+  {% if match %}
+  <div class="mb-3">
+      <p><strong>Match Date:</strong> {{ match.match_date }}</p>
+      {% if match.opponent %}<p><strong>Opponent:</strong> {{ match.opponent }}</p>{% endif %}
+      {% if match.competition %}<p><strong>Competition:</strong> {{ match.competition }}</p>{% endif %}
+  </div>
+  {% endif %}
+
+  <form method="post" novalidate>
+      {% csrf_token %}
+
+      {{ form|crispy }} {# <-- Renders the CricketMatchStatForm passed from the view. Use {{ form.as_p }} if not using crispy #}
+
+      <button type="submit" class="btn btn-primary mt-3">Save Cricket Stats</button>
+      <a href="{% url 'players:profile_detail' %}" class="btn btn-secondary mt-3">Cancel</a> {# Optional Cancel button #}
+  </form>
+{% endblock content %}

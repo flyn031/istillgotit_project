@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %} {# Assuming you use widget_tweaks for forms #}
+{% load i18n %} {# Ensure i18n is loaded if urlencode filter is used #}
+{# REMOVED: {% load custom_filters %} #}
+
+{% block title %}{{ video.title }} - {{ video.player_profile.user.username }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'players:profile_detail_pk' pk=video.player_profile.pk %}">{{ video.player_profile.user.username }}'s Profile</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ video.title }}</li>
+        </ol>
+    </nav>
+
+    <h2>
+        {{ video.title }}
+        {# --- MODIFIED CODE: Display Video Level (Parentheses Removed) --- #}
+        <span class="video-level level-{{ video.level|lower|slugify }}">
+            {{ video.level }}
+        </span>
+        {# --- END MODIFIED CODE --- #}
+    </h2>
+    {# Display view count fetched initially. It updates on next page load. #}
+    <p class="text-muted">
+        Uploaded by: <a href="{% url 'players:profile_detail_pk' pk=video.player_profile.pk %}">{{ video.player_profile.user.username }}</a> on {{ video.uploaded_at|date:"d M Y" }}
+        | Views: {{ video.view_count }}
+        {# --- NEW CODE: Display Average Rating --- #}
+        | Rating: {{ video.average_rating }}/5
+         {# --- END NEW CODE --- #}
+    </p>
+
+
+    {% if video.description %}
+        <p>{{ video.description|linebreaksbr }}</p>
+    {% endif %}
+
+    <!-- Video Player -->
+    {% if video.video_file %}
+    <div class="ratio ratio-16x9 mb-4 bg-dark"> {# Added bg-dark for contrast #}
+        <video controls preload="metadata" class="embed-responsive-item w-100">
+            <source src="{{ video.video_file.url }}" type="video/mp4">
+            {# Add other video types if needed (webm, ogg) #}
+            Your browser does not support the video tag. Please ensure you are using a modern browser.
+        </video>
+    </div>
+    {% else %}
+        <p class="alert alert-warning">Video file not found or is missing.</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- Comments Section -->
+    <h3>Comments</h3>
+    {% if video.allow_comments %}
+        {% if user.is_authenticated %}
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Leave a comment</h5>
+                    <form method="post" action="{% url 'players:video_detail' pk=video.pk %}" novalidate> {# Added novalidate #}
+                        {% csrf_token %}
+                        <input type="hidden" name="video_id" value="{{ video.id }}"> {# Might be useful if form handling gets complex #}
+                        <div class="mb-3">
+                            {% render_field comment_form.body class+="form-control" rows="3" placeholder="Write your comment..." aria-label=comment_form.body.label %}
+                            {% if comment_form.body.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in comment_form.body.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <button type="submit" name="submit_comment" class="btn btn-primary">Post Comment</button>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            {# Use your actual login URL name #}
+            <p><a href="{% url 'login' %}?next={{ request.path }}">Log in</a> to post comments.</p>
+        {% endif %}
+
+        {% for comment in comments %}
+            <div class="card mb-2 shadow-sm">
+                <div class="card-body py-2">
+                    <p class="card-text mb-1">{{ comment.body|linebreaksbr }}</p>
+                    <small class="text-muted">By:
+                        {# Link to profile if it exists #}
+                        {% if comment.author.player_profile %}
+                            <a href="{% url 'players:profile_detail_pk' pk=comment.author.player_profile.pk %}">{{ comment.author.username }}</a>
+                        {% else %}
+                            {{ comment.author.username }} {# Fallback if user has no profile #}
+                        {% endif %}
+                        on {{ comment.created_at|date:"d M Y, H:i" }}
+                    </small>
+                </div>
+            </div>
+        {% empty %}
+            <p>No comments yet.</p>
+        {% endfor %}
+
+    {% else %}
+        <p class="text-muted">Comments are disabled for this video.</p>
+    {% endif %}
+    <!-- End Comments Section -->
+
+</div> {# End container #}
+{% endblock content %} {# This is the CORRECT endblock for block content #}
+
+{% block extra_css %} {# Start of extra_css block #}
+<style>
+    /* Style for the image within the ratio div */
+    .ratio img.card-img-top {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        object-fit: cover;
+    }
+    /* Custom class to prevent pointer cursor when link is disabled */
+    .no-link {
+        cursor: default;
+        pointer-events: none; /* Prevents click */
+        opacity: 0.7; /* Visually indicate it's not interactive */
+    }
+</style>
+{% endblock extra_css %} {# End of extra_css block #}
