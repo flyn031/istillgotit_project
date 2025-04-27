@@ -1,22 +1,99 @@
-# Django specific ignores
-__pycache__/
-*.py[co]
-*/migrations/*.py # Ignore new, unapplied migrations (optional, but keeps repository cleaner)
-*.sqlite3 # If you're using the default SQLite database file
+# .gitignore
 
-# Environment
-.env # Ignore files with environment variables
-venv/ # Ignore the virtual environment directory
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+staticfiles/ # Directory where collectstatic puts files
+media/     # <<< This line is now ACTIVE and will ignore the media directory >>>
+           # Generally YES for Git (videos!). Back up media separately.
+           # If you have default placeholder images *inside* media/,
+           # you might need a more specific rule like:
+           # media/*
+           # !media/default_avatars/
+           # !media/default_avatars/*
+
+# Environments & Secrets
+.env         # <<< CRITICAL: Never commit secrets!
+.venv
+venv/
 ENV/
 env/
+env.bak/
+venv.bak/
 
-# IDEs
-.vscode/ # VS Code settings (optional)
-.idea/ # PyCharm settings (optional)
+# IDE files / OS generated files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
 
-# Generated files
-staticfiles/ # Collected static files for deployment
-media/ # User-uploaded media files
+# Node / Frontend build artifacts (if you add later)
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+build/
 
-# Sensitive files (if not using .env)
-# config/settings.py # ONLY uncomment if you move SECRET_KEY etc. to env vars
+# Backup files
+*.bak
+*.swp
+*~

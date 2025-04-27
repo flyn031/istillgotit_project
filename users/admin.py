@@ -1,17 +1,15 @@
 # users/admin.py
-
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin
+from .models import CustomUser
 
-# Register your models here.
+class CustomUserAdmin(UserAdmin):
+    # You can customize the admin interface for your user model here later
+    # For example, add custom fields to list_display or fieldsets
+    # list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'date_of_birth') # Example
+    # fieldsets = UserAdmin.fieldsets + (
+    #     ('Custom Info', {'fields': ('date_of_birth',)}), # Example
+    # )
+    pass
 
-# If you haven't created any custom models specifically within the 'users' app
-# (in users/models.py), then you don't need to register anything else here.
-# Django automatically handles the registration of the built-in User model.
-
-# You could potentially customize the User admin here later if needed, e.g.:
-# class UserAdmin(BaseUserAdmin):
-#     pass # Add customizations here
-# admin.site.unregister(User) # Unregister default
-# admin.site.register(User, UserAdmin) # Register customized version
+admin.site.register(CustomUser, CustomUserAdmin)
